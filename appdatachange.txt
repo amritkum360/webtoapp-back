@@ -1,0 +1,5 @@
+
+                    "appid": "6614f29b3639ad41247a8412",
+                    "firebaseconf": "app/config.json",
+                    "fcmsecuritykey": "security@12345"
+                
