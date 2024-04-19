@@ -19,6 +19,9 @@ const appSchema = new mongoose.Schema({
     user:{
         type: String
     },
+    plan:{
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now

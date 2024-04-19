@@ -22,6 +22,7 @@ app.use(cors());
 // Define the User model
 const User = require('./modules/Models/Users');
 const firebases = require('./modules/Models/firebase');
+const paymentdatas = require('./modules/Models/paymentdata');
 
 // GET route for testing purposes
 app.get('/webtoapp', (req, res) => {
@@ -257,6 +258,29 @@ exec(buildCommand, { cwd: path.join(__dirname, '../webtoappex/urapp') }, (error,
     res.download(apkFilePath);
   });
   
+
+  app.post('/payment/detailsave', async (req, res) => {
+    console.log(req.body);
+    const { appId, orderId, paymentId, amount } = req.body;
+
+    try {
+        // Save payment details
+        const paymentDetails = await paymentdatas.create(req.body);
+
+        // Update newapp document with plan details
+        const updatedApp = await newapp.findOneAndUpdate(
+            { _id: appId }, // Assuming appId is the ID of the newapp document
+            { $set: { plan: amount, orderId, paymentId } }, // Update planAmount, orderId, and paymentId
+            { new: true } // Return the updated document
+        );
+
+        res.json({ paymentDetails, updatedApp });
+        console.log('Payment details saved and newapp updated:', { paymentDetails, updatedApp });
+    } catch (error) {
+        console.error('Error saving payment details and updating newapp:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 
