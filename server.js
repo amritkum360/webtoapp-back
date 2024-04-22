@@ -9,6 +9,8 @@ const AppAdmobs = require('./modules/Models/AppAdmobs')
 const { exec } = require('child_process');
 const bcrypt = require('bcrypt');
 const { ObjectId } = require('mongodb');
+const port = 3000;
+
 
 
 const path = require('path');
@@ -413,8 +415,7 @@ app.get('/appdashboardagri/:id', async (req, res) => {
     }
 });
 
-const PORT = 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
 });
