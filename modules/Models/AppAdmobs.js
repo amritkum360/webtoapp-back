@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
-// const { type } = require('os');
+const { Schema } = mongoose;
 
 // Define the schema for the App model
-const AppAdmobsSchema = new mongoose.Schema({
-    appid:{
+const AppAdmobsSchema = new Schema({
+    appid: {
+        type: Schema.Types.ObjectId // Correct reference to ObjectId type
+    },
+    applicationid: {
         type: String
     },
-    applicationid:{
-        type: String
-    },
-    bannerid:{
+    bannerid: {
         type: String
     },
     createdAt: {

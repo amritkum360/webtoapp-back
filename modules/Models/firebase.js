@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 // const { type } = require('os');
+const { Schema } = mongoose;
+
 
 // Define the schema for the App model
 const FirebaseSchema = new mongoose.Schema({
     appid:{
-        type: String
+        type: Schema.Types.ObjectId
     },
     firebaseconf:{
         type: String

@@ -19,6 +19,9 @@ const appSchema = new mongoose.Schema({
     user:{
         type: String
     },
+    appicon:{
+        type: String
+    },
     plan:{
         type: String
     },

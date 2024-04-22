@@ -8,6 +8,8 @@ const newapp = require('./modules/Models/newapp')
 const AppAdmobs = require('./modules/Models/AppAdmobs')
 const { exec } = require('child_process');
 const bcrypt = require('bcrypt');
+const { ObjectId } = require('mongodb');
+
 
 const path = require('path');
 
@@ -23,6 +25,8 @@ app.use(cors());
 const User = require('./modules/Models/Users');
 const firebases = require('./modules/Models/firebase');
 const paymentdatas = require('./modules/Models/paymentdata');
+const splashscreens = require('./modules/Models/splashscreen');
+const splashscreen = require('./modules/Models/splashscreen');
 
 // GET route for testing purposes
 app.get('/webtoapp', (req, res) => {
@@ -130,11 +134,15 @@ app.get('/appdashboard/:appid', async (req, res) => {
     }
 });
 
-app.get('/app/admobs', async (req, res) => {
-    const appid = req.query.appid; // Get appid from query parameters
+app.get('/app/admobs/:id', async (req, res) => {
+    const {id} = req.params
+    const appid = id; // Get appid from query parameters
+    console.log(appid)
     try {
         const response = await AppAdmobs.findOne({ appid });
-        res.json(response || {}); // Send response or empty object if not found
+        // res.json(response || {}); // Send response or empty object if not found
+        res.send(response || {})
+        console.log(response)
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');
@@ -162,10 +170,12 @@ app.get('/appinfo', async(req, res)=>{
     }
 })
 
-app.post('/appinfo/update', async (req, res) => {
+app.post('/appinfo/update/:id', async (req, res) => {
     try {
+        console.log(req.params)
+        const {id} = req.params
         const { website, appName, appicon } = req.body;
-        const appid = "6614f29b3639ad41247a8412"; // Assuming this is the appid for the app you want to update
+        const appid = id; // Assuming this is the appid for the app you want to update
 
         const updatedApp = await newapp.findByIdAndUpdate(
             appid,
@@ -185,8 +195,9 @@ app.post('/appinfo/update', async (req, res) => {
 });
 
 // GET route to fetch Firebase data
-app.get('/app/firebase', async (req, res) => {
-    const appid = "6614f29b3639ad41247a8412"; // Assuming you have a specific appid for Firebase data
+app.get('/app/firebase/:id', async (req, res) => {
+    const {id} = req.params
+    const appid = id; // Assuming you have a specific appid for Firebase data
     try {
         const response = await firebases.findOne({ appid });
         res.json(response || {}); // Send response or empty object if not found
@@ -197,12 +208,17 @@ app.get('/app/firebase', async (req, res) => {
 });
 
 // POST route to update Firebase data
-app.post('/app/firebase', async (req, res) => {
-    const { fcmsecuritykey } = req.body;
-    const appid = "6614f29b3639ad41247a8412"; // Assuming you have a specific appid for Firebase data
+app.post('/app/firebase/:id', async (req, res) => {
+    const {id} = req.params
+    const { fcmsecuritykey, firebaseconf } = req.body;
+    const appid = id ; // Assuming you have a specific appid for Firebase data
     try {
-        // Update the fcmsecuritykey for the specific appid
-        const updatedData = await firebases.findOneAndUpdate({ appid }, { fcmsecuritykey }, { new: true });
+        // Update the fcmsecuritykey and firebaseconf for the specific appid
+        const updatedData = await firebases.findOneAndUpdate(
+            { appid },
+            { fcmsecuritykey, firebaseconf },
+            { new: true }
+        );
         res.json(updatedData);
     } catch (error) {
         console.log(error);
@@ -236,7 +252,10 @@ app.post('/updatefile', (req, res) => {
 
 // Endpoint to trigger build process
 app.post('/build', (req, res) => {
-    const buildCommand = 'npx react-native run-android --variant=release --no-jetifier';
+    const buildCommand = `npx react-native run-android
+   cd android
+./gradlew assembleRelease
+ `;
 exec(buildCommand, { cwd: path.join(__dirname, '../webtoappex/urapp') }, (error, stdout, stderr) => {
   if (error) {
     console.error(`Build process error: ${error}`);
@@ -279,6 +298,118 @@ exec(buildCommand, { cwd: path.join(__dirname, '../webtoappex/urapp') }, (error,
     } catch (error) {
         console.error('Error saving payment details and updating newapp:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Assuming you're using Express
+app.get('/api/splashscreen/:id', async (req, res) => {
+    try {
+        const {id}= req.params;
+        console.log(id)
+        // Find data based on appId
+        const existingData = await splashscreens.findOne({ appId: id });
+
+        if (existingData) {
+            res.send(existingData)
+        } else {
+            // If data not found, return a 404 status
+            return res.status(404).json({ message: 'Data not found for the specified appId' });
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+app.post('/api/splashscreen', async (req, res) => {
+    try {
+        const {
+            splashScreenLogo,
+            splashScreenTimeout,
+            customizeStatusBar,
+            statusBarBackgroundColor,
+            statusBarIconColor,
+            appId
+        } = req.body;
+
+        // Check if the appId already exists in the database
+        const existingData = await splashscreens.findOne({ appId });
+
+        if (existingData) {
+            // Update the existing data
+            const updatedData = await splashscreens.findOneAndUpdate(
+                { appId },
+                {
+                    splashScreenLogo,
+                    splashScreenTimeout,
+                    customizeStatusBar,
+                    statusBarBackgroundColor,
+                    statusBarIconColor
+                },
+                { new: true } // Return the updated document
+            );
+            return res.status(200).json({ message: 'Splash Screen settings updated successfully', data: updatedData });
+        } else {
+            // Create new data if the appId doesn't exist
+            const newSplashScreenData = await splashscreens.create({
+                splashScreenLogo,
+                splashScreenTimeout,
+                customizeStatusBar,
+                statusBarBackgroundColor,
+                statusBarIconColor,
+                appId
+            });
+            return res.status(201).json({ message: 'Splash Screen settings saved successfully', data: newSplashScreenData });
+        }
+    } catch (error) {
+        console.error('Error saving data:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+app.get('/appdashboardagri/:id', async (req, res) => {
+    const id  = req.params.id;
+    try {
+        const pipeline =[
+            {
+                $match: {
+                    _id: new ObjectId(id)                }
+            },
+            {
+              "$lookup": {
+                "from": "splashscreens", // Collection to join
+                "localField": "_id", // Converted field from the input documents (apps collection)
+                "foreignField": "appId", // Field from the documents of the "splashscreens" collection
+                "as": "splashscreens" // Output array field
+              }
+            },
+            {
+              "$lookup": {
+                "from": "appadmobs", // Updated to join "admob" collection
+                "localField": "_id",
+                "foreignField": "appid",
+                "as": "admob"
+              }
+            },
+            {
+              "$lookup": {
+                "from": "firebases", // Updated to join "firebase" collection
+                "localField": "_id",
+                "foreignField": "appid",
+                "as": "firebase"
+              }
+            }
+        ]
+
+        const result = await newapp.aggregate(pipeline).exec();
+        console.log(result)
+        // res.json(result);
+        res.send(result[0])
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
