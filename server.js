@@ -34,20 +34,25 @@ const splashscreen = require('./modules/Models/splashscreen');
 app.get('/webtoapp', (req, res) => {
     res.send('This is web to app');
 });
-
 // POST route for signup
 app.post('/signup', async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
+        // Check if the email already exists in the database
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already exists' });
+        }
+
         // Create a new user instance
         const newUser = new User({ name, email, password });
         // Save the user to the database
         const savedUser = await newUser.save();
-        const Userid = savedUser._id
-        console.log(Userid)
+        const Userid = savedUser._id;
+        console.log(Userid);
         // Generate JWT token with user data
-        const token = jwt.sign({ name, email, Userid }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ name: savedUser.name, email: savedUser.email, id: savedUser._id }, secretKey, { expiresIn: '1h' });
 
         // Set token as cookie in the response
         // res.cookie('token', token, { httpOnly: true, maxAge: 3600000 }); // Expires in 1 hour (3600000 ms)
@@ -84,7 +89,7 @@ app.post('/login', async (req, res) => {
         }
 
         // Generate JWT token with user data
-        const token = jwt.sign({ name: user.name, email: user.email }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ name: user.name, email: user.email, id: user._id }, secretKey, { expiresIn: '1h' });
         console.log('Generated Token:', token); // Log the generated token
 
         res.status(200).json({ token }); // Respond with the token
@@ -113,9 +118,11 @@ app.post('/addnewapp', async (req, res) => {
     }
 });
 
-app.get('/myapps',async(req, res)=>{
+app.get('/myapps/:userid',async(req, res)=>{
     try {
-        const myapps = await newapp.find({user:"amrit1"})
+        const {userid} = req.params
+        console.log(userid)
+        const myapps = await newapp.find({user: userid})
         res.send(myapps)
     } catch (error) {
         console.log(error)

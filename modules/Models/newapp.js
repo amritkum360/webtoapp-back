@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { type } = require('os');
+const { Schema } = mongoose;
+
 
 // Define the schema for the App model
 const appSchema = new mongoose.Schema({
@@ -17,13 +19,14 @@ const appSchema = new mongoose.Schema({
         required: true
     },
     user:{
-        type: String
+        type: Schema.Types.ObjectId
     },
     appicon:{
         type: String
     },
     plan:{
-        type: String
+        type: String,
+        default: "0"
     },
     createdAt: {
         type: Date,
