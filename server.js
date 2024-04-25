@@ -31,11 +31,11 @@ const splashscreens = require('./modules/Models/splashscreen');
 const splashscreen = require('./modules/Models/splashscreen');
 
 // GET route for testing purposes
-app.get('/webtoapp', (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/webtoapp', (req, res) => {
     res.send('This is web to app');
 });
 // POST route for signup
-app.post('/signup', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/signup', async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -64,7 +64,7 @@ app.post('/signup', async (req, res) => {
 });
 
 // POST route for login
-app.post('/login', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/login', async (req, res) => {
     console.log("called")
     try {
         const { email, password } = req.body;
@@ -101,7 +101,7 @@ app.post('/login', async (req, res) => {
 
 
 // POST route for creating a new app
-app.post('/addnewapp', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/addnewapp', async (req, res) => {
     console.log("called")
     try {
         const { website, appName, appPlatform, user } = req.body;
@@ -118,7 +118,7 @@ app.post('/addnewapp', async (req, res) => {
     }
 });
 
-app.get('/myapps/:userid',async(req, res)=>{
+app.get('https://webtoapp-back-1.onrender.com/myapps/:userid',async(req, res)=>{
     try {
         const {userid} = req.params
         console.log(userid)
@@ -129,7 +129,7 @@ app.get('/myapps/:userid',async(req, res)=>{
     }
 })
 
-app.get('/appdashboard/:appid', async (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/appdashboard/:appid', async (req, res) => {
     try {
         const { appid } = req.params;
         const response = await newapp.findById(appid);
@@ -143,7 +143,7 @@ app.get('/appdashboard/:appid', async (req, res) => {
     }
 });
 
-app.get('/app/admobs/:id', async (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/app/admobs/:id', async (req, res) => {
     const {id} = req.params
     const appid = id; // Get appid from query parameters
     console.log(appid)
@@ -158,7 +158,7 @@ app.get('/app/admobs/:id', async (req, res) => {
     }
 });
 
-app.post('/app/admobs', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/app/admobs', async (req, res) => {
     const { appid, applicationid, bannerid } = req.body;
     try {
         const updatedData = await AppAdmobs.findOneAndUpdate({ appid }, { applicationid, bannerid }, { new: true });
@@ -169,7 +169,7 @@ app.post('/app/admobs', async (req, res) => {
     }
 });
 
-app.get('/appinfo', async(req, res)=>{
+app.get('https://webtoapp-back-1.onrender.com/appinfo', async(req, res)=>{
     try {
         const appid = "6614f29b3639ad41247a8412"
         const response = await newapp.findById(appid)
@@ -179,7 +179,7 @@ app.get('/appinfo', async(req, res)=>{
     }
 })
 
-app.post('/appinfo/update/:id', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/appinfo/update/:id', async (req, res) => {
     try {
         console.log(req.params)
         const {id} = req.params
@@ -204,7 +204,7 @@ app.post('/appinfo/update/:id', async (req, res) => {
 });
 
 // GET route to fetch Firebase data
-app.get('/app/firebase/:id', async (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/app/firebase/:id', async (req, res) => {
     const {id} = req.params
     const appid = id; // Assuming you have a specific appid for Firebase data
     try {
@@ -217,7 +217,7 @@ app.get('/app/firebase/:id', async (req, res) => {
 });
 
 // POST route to update Firebase data
-app.post('/app/firebase/:id', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/app/firebase/:id', async (req, res) => {
     const {id} = req.params
     const { fcmsecuritykey, firebaseconf } = req.body;
     const appid = id ; // Assuming you have a specific appid for Firebase data
@@ -235,7 +235,7 @@ app.post('/app/firebase/:id', async (req, res) => {
     }
 });
 
-app.get('/changethedata', async (req, res)=>{
+app.get('https://webtoapp-back-1.onrender.com/changethedata', async (req, res)=>{
     const appid= "6614f29b3639ad41247a8412"
     try {
         const resp1 = await newapp.findById(appid)
@@ -247,7 +247,7 @@ app.get('/changethedata', async (req, res)=>{
     }
 })
 
-app.post('/updatefile', (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/updatefile', (req, res) => {
     const { content, content2 } = req.body;
 
     // Write the content to the file (assuming synchronous write for simplicity)
@@ -260,7 +260,7 @@ app.post('/updatefile', (req, res) => {
 
 
 // Endpoint to trigger build process
-app.post('/build', (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/build', (req, res) => {
     const buildCommand = `npx react-native run-android
    cd android
 ./gradlew assembleRelease
@@ -281,13 +281,13 @@ exec(buildCommand, { cwd: path.join(__dirname, '../webtoappex/urapp') }, (error,
   });
 
   // Endpoint to serve APK file for download
-  app.get('/download', (req, res) => {
+  app.get('https://webtoapp-back-1.onrender.com/download', (req, res) => {
     const apkFilePath = path.join(__dirname, '../webtoappex/urapp/android/app/build/outputs/apk/release/app-release.apk');
     res.download(apkFilePath);
   });
   
 
-  app.post('/payment/detailsave', async (req, res) => {
+  app.post('https://webtoapp-back-1.onrender.com/payment/detailsave', async (req, res) => {
     console.log(req.body);
     const { appId, orderId, paymentId, amount } = req.body;
 
@@ -311,7 +311,7 @@ exec(buildCommand, { cwd: path.join(__dirname, '../webtoappex/urapp') }, (error,
 });
 
 // Assuming you're using Express
-app.get('/api/splashscreen/:id', async (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/api/splashscreen/:id', async (req, res) => {
     try {
         const {id}= req.params;
         console.log(id)
@@ -331,7 +331,7 @@ app.get('/api/splashscreen/:id', async (req, res) => {
 });
 
 
-app.post('/api/splashscreen', async (req, res) => {
+app.post('https://webtoapp-back-1.onrender.com/api/splashscreen', async (req, res) => {
     try {
         const {
             splashScreenLogo,
@@ -378,7 +378,7 @@ app.post('/api/splashscreen', async (req, res) => {
 });
 
 
-app.get('/appdashboardagri/:id', async (req, res) => {
+app.get('https://webtoapp-back-1.onrender.com/appdashboardagri/:id', async (req, res) => {
     const id  = req.params.id;
     try {
         const pipeline =[
